@@ -6,6 +6,7 @@ import time
 from sklearn.preprocessing import StandardScaler
 from sklearn import svm
 from sklearn.decomposition import PCA
+import random 
 
 
 # Function: train_features()
@@ -83,6 +84,39 @@ def classifier(images_filenames, labels, cextractor, cclf, cstdslr, is_pca, cpca
             cnumcorrect += 1
     return cnumcorrect
 
+# Function: test_classifier_pseudorandom()
+# Description: Gives another criterion for assigning the label to the test sample
+# Input: images_filenames, labels, extractor, clf, stdSlr, pca, isPCA=True
+# Output: numcorrect
+def test_classifier_pseudorandom(test_images_filenames, test_labels, extractor, clf, stdSlr, pca, isPCA = True):
+
+    numtestimages=0
+    numcorrect=0
+    for i in range(len(test_images_filenames)):
+        filename=test_images_filenames[i]
+        ima=cv2.imread(filename)
+        gray=cv2.cvtColor(ima,cv2.COLOR_BGR2GRAY)
+        
+        kpt,des=extractor.detectAndCompute(gray,None)
+        if isPCA:
+            pca.transform(des)
+
+        predictions = clf.predict(stdSlr.transform(des))
+        values, counts = np.unique(predictions, return_counts=True)
+        valids = []
+        for x in range(len(values)):
+            if abs(counts[x] - max(counts)) <= float(max(counts)) / counts.mean():
+                valids.append(values[x])
+                for j in range(counts[x]/(abs(counts[x] - max(counts))+1)):
+                    valids.append(values[x])
+
+        random.shuffle(valids)
+        predictedclass = valids[random.randint(0, len(valids) - 1)]
+        print 'image '+ filename +' was from class '+test_labels[i] + ' and was predicted '+predictedclass
+        numtestimages+=1
+        if predictedclass==test_labels[i]:
+            numcorrect+=1
+    return numcorrect
 
 # ------------------ Main function ------------------ #
 if __name__ == "__main__":
