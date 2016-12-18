@@ -6,7 +6,7 @@ import time
 from sklearn.preprocessing import StandardScaler
 from sklearn import svm
 from sklearn.decomposition import PCA
-
+import random 
 
 # Function: train_features()
 # Description:
@@ -148,6 +148,21 @@ def label_decision(prediction, method):
 
             probs[ii] = (counts_1[ind_1] + counts_2[ind_2] + counts_3[ind_3] + counts_4[ind_4])/4
         predictedclass = values[np.argmax(probs)]
+        
+    else if method == 'pseudo_random'
+    
+    values, counts = np.unique(predictions, return_counts=True)
+        valids = []
+        for x in range(len(values)):
+            if abs(counts[x] - max(counts)) <= float(max(counts)) / counts.mean():
+                valids.append(values[x])
+                for j in range(counts[x]/(abs(counts[x] - max(counts))+1)):
+                    valids.append(values[x])
+
+        random.shuffle(valids)
+        predictedclass = valids[random.randint(0, len(valids) - 1)]
+        
+    return predictedclass
 # ------------------ Main function ------------------ #
 if __name__ == "__main__":
 
